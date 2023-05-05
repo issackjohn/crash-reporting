@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- Add some random elements -->
+    <div>Some text</div>
+    <button id="hangBtn">Hang Browser</button>
+    <button id="reportBtn">Display reports</button>
+    <!-- Add a button that increments a counter -->
+    <button id="counterBtn">Increment Counter</button>
+    <div class="counter">0</div>
+    <div class="output"></div>
+
+    <!-- Add a button that when clicked will crash v8 -->
+    <button id="crashBtn">Crash V8</button>
+
+    <script>
+      // Get reference to counter button
+      const counterBtn = document.querySelector("#counterBtn");
+      // Function to increment counter on the html page
+      function incrementCounter() {
+        const counterElem = document.querySelector(".counter");
+        counterElem.textContent = parseInt(counterElem.textContent) + 1;
+      }
+      // bind function to onclick method
+      counterBtn.onclick = (event) => incrementCounter();
+
+      // Get reference to crash button
+      const crashBtn = document.querySelector("#crashBtn");
+      // Function to crash v8
+      function crash() {
+        console.log("Crash");
+        const crash = 1n / 0n;
+      }
+      // bind function to onclick method
+      crashBtn.onclick = (event) => crash();
+      
+      // create a function that causes the browser to hang for 5 seconds
+      function hang() {
+        console.log("Hang");
+        while (true) {}
+      }
+
+      const hangBtn = document.querySelector("#hangBtn");
+      hangBtn.onclick = (event) => hang();
+      
+    </script>
+  </body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script type="text/javascript" src=".\script.js"></script>
+  </head>
+  <body>
+    <!-- Add some random elements -->
+    <div>Some text</div>
+    <button id="hangBtn">Hang Browser</button>
+    <button id="reportBtn">Display reports</button>
+    <!-- Add a button that increments a counter -->
+    <button id="counterBtn">Increment Counter</button>
+    <div class="counter">0</div>
+    <div class="output"></div>
+
+    <!-- Iframe to embed hang.html -->
+    <iframe src="hang.html" width="100%" height="100%"></iframe>
+
+    <!-- Iframe for bing.com -->
+    <!-- <iframe src="https://www.bing.com" width="100%" height="100%"></iframe> -->
+
+    <script>
+      console.log("Okay");
+      // Get reference to button
+      const reportBtn = document.querySelector("#reportBtn");
+
+      // Get reference to counter button
+      const counterBtn = document.querySelector("#counterBtn");
+      
+      // Function to increment counter on the html page
+      function incrementCounter() {
+        const counterElem = document.querySelector(".counter");
+        counterElem.textContent = parseInt(counterElem.textContent) + 1;
+      }
+
+      // bind function to onclick method
+      counterBtn.onclick = (event) => incrementCounter();
+
+      // Set up function to display reports
+      function displayReports(reports) {
+        const outputElem = document.querySelector(".output");
+        // Clear any existing reportss
+        outputElem.innerHTML = "";
+        const list = document.createElement("ul");
+        outputElem.appendChild(list);
+
+        for (let i = 0; i < reports.length; i++) {
+          let listItem = document.createElement("li");
+          let textNode = document.createTextNode(
+            "Report " + (i + 1) + ", type: " + reports[i].type
+          );
+          listItem.appendChild(textNode);
+          let innerList = document.createElement("ul");
+          listItem.appendChild(innerList);
+          list.appendChild(listItem);
+
+          for (let key in reports[i].body) {
+            let innerListItem = document.createElement("li");
+            let keyValue = reports[i].body[key];
+            innerListItem.textContent = key + ": " + keyValue;
+            innerList.appendChild(innerListItem);
+          }
+        }
+      }
+
+      const observer = new ReportingObserver(
+        (reports, observer) => {
+          reportBtn.onclick = (event) => displayReports(reports);
+        },
+        { buffered: true }
+      );
+
+      observer.observe();
+
+      // create a function that causes the browser to hang for 5 seconds
+      function hang() {
+        console.log("Hang");
+        while (true) {}
+      }
+
+      const hangBtn = document.querySelector("#hangBtn");
+      hangBtn.onclick = (event) => hang();
+      
+      // cause an oom error
+      //   function oom() {
+      //     let arr = [];
+      //     while (true) {
+      //       arr.push("Some text");
+      //     }
+      //   }
+      //   oom();
+    </script>
+  </body>
+</html>
