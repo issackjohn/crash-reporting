@@ -40,19 +40,11 @@ app.use((req, res, next) => {
 
 app.get('/', (req, res) => {
     console.log('Serving html');
-
-    fs.readFile('index.html', (err, data) => {
-        if (err) {
-            res.status(500).send({ error: 'Error reading file' });
-        } else {
-            res.set('Content-Type', 'text/html');
-            res.send(data);
-        }
-    });
+    res.sendFile('index.html');
 });
+
 app.post('/main', async (req, res) => {
     console.log('main Received a report: ');
-
     res.set('Content-Type', 'application/json');
     res.send({ message: 'Successfully received a crash report' });
 });

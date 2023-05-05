@@ -77,10 +77,9 @@
       observer.observe();
 
       // create a function that causes the browser to hang for 5 seconds
-      function hang() {
-        console.log("Hang");
-        while (true) {}
-      }
+      function hang() {hang2();}
+      function hang2(){hang3();};
+      function hang3(){while (true) {}};
 
       const hangBtn = document.querySelector("#hangBtn");
       hangBtn.onclick = (event) => hang();
