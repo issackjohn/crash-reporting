@@ -6,7 +6,7 @@ setTimeout(() => {
 }, 3000);
 
 // Deprecation
-window.webkitStorageInfo;
+const webkitStorageInfo = window.webkitStorageInfo;
 console.log(navigator.userAgent);
 
 // Document policy violation

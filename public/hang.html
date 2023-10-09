@@ -39,7 +39,22 @@
       }
       // bind function to onclick method
       crashBtn.onclick = (event) => crash();
-      
+
+      function foo() {
+        console.log("Foo");
+        bar();
+      }
+
+      function bar() {
+        console.log("Bar");
+        baz();
+      }
+
+      function baz() {
+        console.log("Baz");
+        hang();
+      }
+
       // create a function that causes the browser to hang for 5 seconds
       function hang() {
         console.log("Hang");
@@ -47,7 +62,7 @@
       }
 
       const hangBtn = document.querySelector("#hangBtn");
-      hangBtn.onclick = (event) => hang();
+      hangBtn.onclick = (event) => foo();
       
     </script>
   </body>

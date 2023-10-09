@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
-const https = require('https');
+const https = require('node:https');
+const cors = require('cors');
 
 const REPORTING_ENDPOINT_BASE = 'https://localhost:8443';
 const REPORTING_ENDPOINT_MAIN = `${REPORTING_ENDPOINT_BASE}/main`;
@@ -12,12 +13,13 @@ const certificate = fs.readFileSync('sslcert/server.cert', { encoding: 'utf8' })
 let credentials;
 
 if (privateKey && certificate) {
-    credentials = { key: privateKey, cert: certificate };
+    credentials = { key: privateKey, cert: certificate, rejectUnauthorized: false, requestCert: false};
 } else {
     throw new Error('Missing private key or certificate.');
 }
 
 const app = express();
+app.use(cors())
 app.use(express.static('public'));
 app.use(express.json({ type: ['application/json', 'application/reports+json'] }));
 app.use(express.urlencoded({ extended: false }));
