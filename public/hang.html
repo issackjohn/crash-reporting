@@ -8,8 +8,9 @@
   </head>
   <body>
     <!-- Add some random elements -->
-    <div>Some text</div>
+    <div>Foo Bar Baz</div>
     <button id="hangBtn">Hang Browser</button>
+    <button id="externalExceptionBtn">External Exception</button>
     <button id="reportBtn">Display reports</button>
     <!-- Add a button that increments a counter -->
     <button id="counterBtn">Increment Counter</button>
@@ -40,6 +41,19 @@
       // bind function to onclick method
       crashBtn.onclick = (event) => crash();
 
+      function fooWithException() {
+        try {
+          var script = document.createElement("script");
+          script.src =
+            "https://cdn.jsdelivr.net/gh/issackjohn/issackjohn.github.io@latest/external-exception.js";
+          script.crossOrigin = "anonymous";
+          document.body.appendChild(script);
+        } catch (error) {
+          cosole.log("Caught the error on localhost");
+          console.log(error.stack);
+        }
+      }
+
       function foo() {
         console.log("Foo");
         bar();
@@ -52,6 +66,20 @@
 
       function baz() {
         console.log("Baz");
+        // var script = document.createElement("script");
+        // script.src =
+        //   "https://cdn.jsdelivr.net/gh/issackjohn/issackjohn.github.io@latest/my-script.js";
+        // script.crossOrigin = "anonymous";
+        // document.body.appendChild(script);
+        // sleep for 5 seconds
+        // setTimeout(() => {
+        //   yikes();
+        // }, 3000);
+        yikes();
+
+      }
+
+      function yikes() {
         hang();
       }
 
@@ -63,7 +91,16 @@
 
       const hangBtn = document.querySelector("#hangBtn");
       hangBtn.onclick = (event) => foo();
-      
+
+      const exceptionBtn = document.querySelector("#externalExceptionBtn");
+      exceptionBtn.onclick = (event) => {
+        try {
+          fooWithException();
+        } catch (error) {
+          console.log("Caught the error thrown by the external script");
+          console.log(error.stack);
+        }
+      };
     </script>
   </body>
 </html>

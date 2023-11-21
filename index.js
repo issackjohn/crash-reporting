@@ -5,7 +5,7 @@ const cors = require('cors');
 
 const REPORTING_ENDPOINT_BASE = 'https://localhost:8443';
 const REPORTING_ENDPOINT_MAIN = `${REPORTING_ENDPOINT_BASE}/main`;
-const REPORTING_ENDPOINT_DEFAULT = `${REPORTING_ENDPOINT_BASE}/default`;
+const REPORTING_ENDPOINT_DEFAULT = `${REPORTING_ENDPOINT_BASE}/custom`;
 
 const privateKey = fs.readFileSync('sslcert/server.key', { encoding: 'utf8' });
 const certificate = fs.readFileSync('sslcert/server.cert', { encoding: 'utf8' });
@@ -18,9 +18,12 @@ if (privateKey && certificate) {
     throw new Error('Missing private key or certificate.');
 }
 
+const corsOptions = {
+    origin: 'https://localhost:8443'
+  };
+
 const app = express();
-app.use(cors())
-app.use(express.static('public'));
+app.use(cors(corsOptions))
 app.use(express.json({ type: ['application/json', 'application/reports+json'] }));
 app.use(express.urlencoded({ extended: false }));
 
@@ -29,21 +32,18 @@ app.use((req, res, next) => {
         'Reporting-Endpoints',
         `main-endpoint="${REPORTING_ENDPOINT_MAIN}", default="${REPORTING_ENDPOINT_DEFAULT}"`
     );
-    res.set(
-        'Content-Security-Policy',
-        `script-src 'self' 'unsafe-inline' 'unsafe-eval'; object-src 'none'; report-to main-endpoint;`
-    );
+    // res.set(
+    //     'Content-Security-Policy',
+    //     `script-src 'self' 'unsafe-inline' 'unsafe-eval'; object-src 'none'; report-to main-endpoint;`
+    // );
     res.set(
         'Document-Policy',
-        `document-write=?0; report-to=main-endpoint`
+        `document-write=?0, include-js-stack-traces; report-to=main-endpoint`
     );
     next();
 })
 
-app.get('/', (req, res) => {
-    console.log('Serving html');
-    res.sendFile('index.html');
-});
+app.use('/', express.static('public'));
 
 app.post('/main', async (req, res) => {
     console.log('main Received a report: ');
@@ -51,7 +51,7 @@ app.post('/main', async (req, res) => {
     res.send({ message: 'Successfully received a crash report' });
 });
 
-app.post('/default', async (req, res) => {
+app.post('/custom', async (req, res) => {
     console.log('Default Received a report: ');
 
     for (let i = 0; i < req?.body?.length; i++) {
