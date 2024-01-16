@@ -18,21 +18,18 @@
     <div class="output"></div>
 
     <!-- Iframe to embed hang.html -->
-    <iframe src="hang.html" width="100%" height="100%"></iframe>
-
+    <iframe src="hang.html" width="800px" height="600px"></iframe>
     <!-- Iframe for bing.com -->
-    <!-- <iframe src="https://www.bing.com" width="100%" height="100%"></iframe> -->
     <!-- https://cdn.jsdelivr.net/gh/user/repo@version/file -->
     <!-- <script src="https://cdn.jsdelivr.net/gh/issackjohn/issackjohn.github.io/my-script.js"></script> -->
 
     <script>
-      console.log("Okay");
       // Get reference to button
       const reportBtn = document.querySelector("#reportBtn");
 
       // Get reference to counter button
       const counterBtn = document.querySelector("#counterBtn");
-      
+
       // Function to increment counter on the html page
       function incrementCounter() {
         const counterElem = document.querySelector(".counter");
@@ -79,21 +76,42 @@
       observer.observe();
 
       // create a function that causes the browser to hang for 5 seconds
-      function hang() {hang2();}
-      function hang2(){hang3();};
-      function hang3(){while (true) {}};
+      function hang() {
+        hang2();
+      }
+      function hang2() {
+        hang3();
+      }
+      function hang3() {
+        while (true) {}
+      }
 
       const hangBtn = document.querySelector("#hangBtn");
       hangBtn.onclick = (event) => hang();
-      
-      // cause an oom error
-      //   function oom() {
-      //     let arr = [];
-      //     while (true) {
-      //       arr.push("Some text");
-      //     }
-      //   }
-      //   oom();
+
+      const profiler = new Profiler({
+        sampleInterval: 10, // Target sampling every 10ms
+        maxBufferSize: 10 * 100, // Cap at ~10s worth of samples
+      });
+
+      async function collectAndSendTrace() {
+        if (profiler.stopped) return;
+
+        const trace = await profiler.stop();
+        const traceJson = JSON.stringify({
+          timing: performance.timing,
+          trace,
+        });
+
+        // Send the trace JSON to a server via Fetch/XHR
+        console.log(trace);
+        console.log(traceJson);
+      }
+
+      profiler.addEventListener("samplebufferfull", collectAndSendTrace);
+      window.addEventListener("load", collectAndSendTrace);
+
+      // Rest of the page's JS initialization logic
     </script>
   </body>
 </html>
