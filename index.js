@@ -7,15 +7,19 @@ const REPORTING_ENDPOINT_BASE = 'https://localhost:8443';
 const REPORTING_ENDPOINT_MAIN = `${REPORTING_ENDPOINT_BASE}/main`;
 const REPORTING_ENDPOINT_DEFAULT = `${REPORTING_ENDPOINT_BASE}/custom`;
 
+if (process.env.NODE_ENV === 'development') {
 const privateKey = fs.readFileSync('sslcert/server.key', { encoding: 'utf8' });
 const certificate = fs.readFileSync('sslcert/server.cert', { encoding: 'utf8' });
+}
 
 let credentials;
 
-if (privateKey && certificate) {
-    credentials = { key: privateKey, cert: certificate, rejectUnauthorized: false, requestCert: false};
-} else {
-    throw new Error('Missing private key or certificate.');
+if (process.env.NODE_ENV === 'development') {
+    if (privateKey && certificate) {
+        credentials = { key: privateKey, cert: certificate, rejectUnauthorized: false, requestCert: false};
+    } else {
+        throw new Error('Missing private key or certificate.');
+    }
 }
 
 const corsOptions = {
@@ -38,8 +42,21 @@ app.use((req, res, next) => {
     // );
     res.set(
         'Document-Policy',
-        `document-write=?0, include-js-stack-traces; report-to=main-endpoint`
+        `document-write=?0, js-profiling, include-js-call-stacks-in-crash-reports; report-to=main-endpoint`
+        // `document-write=?0; report-to=main-endpoint`
     );
+    //set Cross-Origin-Resource-Policy
+    res.set('Cross-Origin-Opener-Policy', 'same-origin');
+    // This allows us to only load resources that are explicitly marked as sharable.
+    res.set('Cross-Origin-Embedder-Policy', 'require-corp');
+    // res.set(
+    //     'Cross-Origin-Resource-Policy',
+    //     `same-origin; report-to=main-endpoint`
+    // )
+    res.set(
+        'Permissions-Policy',
+        `geolocation=(); report-to=main-endpoint`
+    )
     next();
 })
 
@@ -65,12 +82,16 @@ app.post('/custom', async (req, res) => {
     res.send({ message: 'Successfully received a crash report' });
 });
 
+if (process.env.NODE_ENV === 'development') {
 const httpsServer = https.createServer(credentials, app);
+}
 
 app.listen(8000, () => {
     console.log('Server listening on port 8000');
 });
 
+if (process.env.NODE_ENV === 'development') {
 httpsServer.listen(8443, () => {
     console.log('Server listening on port 8443');
 });
+}
