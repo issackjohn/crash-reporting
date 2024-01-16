@@ -7,16 +7,12 @@ const REPORTING_ENDPOINT_BASE = 'https://localhost:8443';
 const REPORTING_ENDPOINT_MAIN = `${REPORTING_ENDPOINT_BASE}/main`;
 const REPORTING_ENDPOINT_DEFAULT = `${REPORTING_ENDPOINT_BASE}/custom`;
 
-if (process.env.NODE_ENV === 'development') {
-const privateKey = fs.readFileSync('sslcert/server.key', { encoding: 'utf8' });
-const certificate = fs.readFileSync('sslcert/server.cert', { encoding: 'utf8' });
-}
-
 let credentials;
-
 if (process.env.NODE_ENV === 'development') {
+    const privateKey = fs.readFileSync('sslcert/server.key', { encoding: 'utf8' });
+    const certificate = fs.readFileSync('sslcert/server.cert', { encoding: 'utf8' });
     if (privateKey && certificate) {
-        credentials = { key: privateKey, cert: certificate, rejectUnauthorized: false, requestCert: false};
+        credentials = { key: privateKey, cert: certificate, rejectUnauthorized: false, requestCert: false };
     } else {
         throw new Error('Missing private key or certificate.');
     }
@@ -24,7 +20,7 @@ if (process.env.NODE_ENV === 'development') {
 
 const corsOptions = {
     origin: 'https://localhost:8443'
-  };
+};
 
 const app = express();
 app.use(cors(corsOptions))
@@ -73,8 +69,9 @@ app.post('/custom', async (req, res) => {
     res.send({ message: 'Successfully received a crash report' });
 });
 
+let httpsServer;
 if (process.env.NODE_ENV === 'development') {
-const httpsServer = https.createServer(credentials, app);
+    httpsServer = https.createServer(credentials, app);
 }
 
 app.listen(8080, () => {
@@ -82,7 +79,7 @@ app.listen(8080, () => {
 });
 
 if (process.env.NODE_ENV === 'development') {
-httpsServer.listen(8443, () => {
-    console.log('Server listening on port 8443');
-});
+    httpsServer.listen(8443, () => {
+        console.log('Server listening on port 8443');
+    });
 }
