@@ -36,14 +36,9 @@ app.use((req, res, next) => {
         'Reporting-Endpoints',
         `main-endpoint="${REPORTING_ENDPOINT_MAIN}", default="${REPORTING_ENDPOINT_DEFAULT}"`
     );
-    // res.set(
-    //     'Content-Security-Policy',
-    //     `script-src 'self' 'unsafe-inline' 'unsafe-eval'; object-src 'none'; report-to main-endpoint;`
-    // );
     res.set(
         'Document-Policy',
         `document-write=?0, js-profiling, include-js-call-stacks-in-crash-reports; report-to=main-endpoint`
-        // `document-write=?0; report-to=main-endpoint`
     );
     //set Cross-Origin-Resource-Policy
     res.set('Cross-Origin-Opener-Policy', 'same-origin');
@@ -53,10 +48,6 @@ app.use((req, res, next) => {
     //     'Cross-Origin-Resource-Policy',
     //     `same-origin; report-to=main-endpoint`
     // )
-    res.set(
-        'Permissions-Policy',
-        `geolocation=(); report-to=main-endpoint`
-    )
     next();
 })
 
