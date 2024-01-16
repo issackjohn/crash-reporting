@@ -86,8 +86,8 @@ if (process.env.NODE_ENV === 'development') {
 const httpsServer = https.createServer(credentials, app);
 }
 
-app.listen(8000, () => {
-    console.log('Server listening on port 8000');
+app.listen(8080, () => {
+    console.log('Server listening on port 8080');
 });
 
 if (process.env.NODE_ENV === 'development') {
