@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script type="text/javascript" src=".\script.js"></script>
+  <style>
+    .iframe-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin: auto;
+      margin-bottom: 10px;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin: auto;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    #hangBtn {
+      margin: 10px;
+    }
+
+    .counter {
+      font-size: 24px;
+      margin: 10px;
+    }
+
+    #counterBtn {
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Add some random elements -->
+  <div class="container">
+    <h1>
+      This main document has <span style="color: red">Not Opted in</span> to
+      sending call stacks
+    </h1>
+    <button id="goToOptIn">Go to Opt In main page</button>
+  </div>
+  <div class="button-container">
+    <button id="hangBtn" class="button">Hang Browser</button>
+    <!-- Add a button that increments a counter -->
+    <button id="counterBtn" class="button">Increment Counter</button>
+    <div class="counter">0</div>
+  </div>
+
+  <div class="iframe-container">
+    <div>
+      <h1>
+        <span style="color: green">Opted in</span> to sending call stacks
+      </h1>
+      <iframe src="hang.html" width="500px" height="500px" title="Hang Page"></iframe>
+    </div>
+
+    <div>
+      <h1>
+        <span style="color: red">Not Opted in</span> to sending call stacks
+      </h1>
+      <iframe src="https://localhost:8443/opt-out" width="500px" height="500px" title="Not opted in hang page"></iframe>
+    </div>
+  </div>
+
+  <!-- Iframe to embed hang.html -->
+  <!-- Iframe for bing.com -->
+  <!-- https://cdn.jsdelivr.net/gh/user/repo@version/file -->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/issackjohn/issackjohn.github.io/my-script.js"></script> -->
+
+  <script>
+    // Get reference to button
+    const reportBtn = document.querySelector("#reportBtn");
+
+    // Get reference to counter button
+    const counterBtn = document.querySelector("#counterBtn");
+    // Function to increment counter on the html page
+    function incrementCounter() {
+      const counterElem = document.querySelector(".counter");
+      counterElem.textContent = parseInt(counterElem.textContent) + 1;
+    }
+
+    const goToOptIn = document.querySelector("#goToOptIn");
+    goToOptIn.onclick = (event) => {
+      window.location.href = "https://localhost:8443/";
+    };
+
+    // bind function to onclick method
+    counterBtn.onclick = (event) => incrementCounter();
+
+    // Set up function to display reports
+    function displayReports(reports) {
+      const outputElem = document.querySelector(".output");
+      // Clear any existing reportss
+      outputElem.innerHTML = "";
+      const list = document.createElement("ul");
+      outputElem.appendChild(list);
+
+      for (let i = 0; i < reports.length; i++) {
+        let listItem = document.createElement("li");
+        let textNode = document.createTextNode(
+          "Report " + (i + 1) + ", type: " + reports[i].type
+        );
+        listItem.appendChild(textNode);
+        let innerList = document.createElement("ul");
+        listItem.appendChild(innerList);
+        list.appendChild(listItem);
+
+        for (let key in reports[i].body) {
+          let innerListItem = document.createElement("li");
+          let keyValue = reports[i].body[key];
+          innerListItem.textContent = key + ": " + keyValue;
+          innerList.appendChild(innerListItem);
+        }
+      }
+    }
+
+    const observer = new ReportingObserver(
+      (reports, observer) => {
+        reportBtn.onclick = (event) => displayReports(reports);
+      },
+      { buffered: true }
+    );
+
+    observer.observe();
+
+    // create a function that causes the browser to hang for 5 seconds
+    function hang() {
+      hang2();
+    }
+    function hang2() {
+      hang3();
+    }
+    function hang3() {
+      while (true) { }
+    }
+
+    const hangBtn = document.querySelector("#hangBtn");
+    hangBtn.onclick = (event) => hang();
+  </script>
+</body>
+
+</html>

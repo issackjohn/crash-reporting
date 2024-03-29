@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
+  <title>Just hanging around</title>
   <style>
     /* Add some basic styling */
     body {
@@ -13,9 +13,18 @@
     }
 
     .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin: auto;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
 
     .button {
@@ -30,15 +39,25 @@
       margin-bottom: 10px;
     }
 
+    .button-group {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-evenly;
+      text-align: center;
+      margin: 10px;
+      padding: 10px;
+      border: 1px solid #000;
+    }
     .counter {
       font-size: 24px;
-      margin-bottom: 10px;
+      margin: 10px;
     }
-
-    .output {
-      margin-bottom: 10px;
+    #counterBtn {
+      margin: 10px;
     }
   </style>
+  <script type="module" src="hang.js"></script>
 </head>
 
 <body>
@@ -48,115 +67,33 @@
     <div>Foo Bar Baz</div>
 
     <!-- Add a button that increments a counter -->
-    <button id="counterBtn" class="button">Increment Counter</button>
-    <div class="counter">0</div>
-    <div class="output"></div>
-
-    <!-- Add a button that when clicked will crash v8 -->
-    <button id="crashBtn" class="button">Crash V8</button>
-
-    <!-- Add a button to get user's current location -->
-    <button id="locationBtn" class="button">Get Location</button>
-    <div id="locationOutput"></div>
+    <div class="button-container">
+      <button id="counterBtn" class="button">Increment Counter</button>
+      <div id="counter" class="counter">0</div>
+    </div>
 
     <!-- Add additional buttons -->
-    <button id="hangBtn" class="button">Hang Browser</button>
-    <button id="externalHangBtn" class="button">External Hang</button>
-    <button id="externalExceptionBtn" class="button">External Exception</button>
-    <button id="localCdnLocalExceptionBtn" class="button">Local -> CDN -> Local Exception</button>
-    <button id="localCdnLocalhangBtn" class="button">Local -> CDN -> Local Hang</button>
-    <button id="reportBtn" class="button">Display reports</button>
+    <div class="button-group">
+      <p>This will call Foo()->Bar()->Baz()->yikes() then the function which will cause the hang </p>
+      <button id="hangBtn" class="button">Hang Browser</button>
+    </div>
+    <div class="button-group">
+      <p>This will call Foo()->Bar()->Baz()->yikes() then the function which will cause the hang </p>
+      <button id="externalHangBtn" class="button">External Hang</button>
+    </div>
+    <div class="button-group">
+      <p>This will call fooWithLocalException()->Bar()->Baz()->yikes() then the function which will cause the hang </p>
+      <button id="localCdnLocalExceptionBtn" class="button">Local -> CDN -> Local Exception</button>
+    </div>
+    <div class="button-group">
+      <p>When clicked, fetches and executes a script from an external source,
+        which can causes the browser to hang.</p>
+      <button id="localCdnLocalhangBtn" class="button">Local -> CDN -> Local Hang</button>
+    </div>
+
+    <!-- <button id="wasmexample" class="button">js() x2 -> wasm() x2 -> js() hang</button> -->
   </div>
-
   <script>
-    // Get reference to counter button
-    const counterBtn = document.querySelector("#counterBtn");
-    // Function to increment counter on the html page
-    function incrementCounter() {
-      const counterElem = document.querySelector(".counter");
-      counterElem.textContent = parseInt(counterElem.textContent) + 1;
-    }
-    // bind function to onclick method
-    counterBtn.onclick = (event) => incrementCounter();
-
-    // Get reference to crash button
-    const crashBtn = document.querySelector("#crashBtn");
-    // Function to crash v8
-    function crash() {
-      console.log("Crash");
-      const crash = 1n / 0n;
-    }
-    // bind function to onclick method
-    crashBtn.onclick = (event) => crash();
-
-    function fooWithException() {
-      try {
-        var script = document.createElement("script");
-        script.src =
-          "https://cdn.jsdelivr.net/gh/issackjohn/issackjohn.github.io@latest/external-exception.js";
-        // script.crossOrigin = "anonymous";
-        document.body.appendChild(script);
-      } catch (error) {
-        console.log("Caught the error on localhost");
-        console.log(error.stack);
-      }
-    }
-
-    function fooWithLocalException() {
-      try {
-        var script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/gh/issackjohn/issackjohn.github.io@latest/middle-function.js";
-        script.crossOrigin = "anonymous";
-        document.body.appendChild(script);
-      } catch (error) {
-        console.log("Caught the error on localhost");
-        console.log(error.stack);
-      }
-    }
-
-    function fooWithLocalHang() {
-      var script = document.createElement("script");
-      script.src = "https://86a7b515-9c60-4eb6-a7ff-2f7eae43e047.mock.pstmn.io/middle-function-hang";
-      script.crossOrigin = "anonymous";
-      document.body.appendChild(script);
-    }
-
-    function foo() {
-      console.log("Foo");
-      bar();
-    }
-
-    function bar() {
-      console.log("Bar");
-      baz();
-    }
-
-    function baz() {
-      console.log("Baz");
-      // var script = document.createElement("script");
-      // script.src =
-      //   "https://cdn.jsdelivr.net/gh/issackjohn/issackjohn.github.io@latest/my-script.js";
-      // script.crossOrigin = "anonymous";
-      // document.body.appendChild(script);
-      // sleep for 5 seconds
-      // setTimeout(() => {
-      //   yikes();
-      // }, 3000);
-      yikes();
-    }
-
-    function startExternalHang() {
-      var script = document.createElement("script");
-      script.src =
-        "https://cdn.jsdelivr.net/gh/issackjohn/issackjohn.github.io@latest/my-script.js";
-      // script.crossOrigin = "anonymous";
-      document.body.appendChild(script);
-    }
-
-    function yikes() {
-      hang();
-    }
-
     function someException() {
       console.log(new Error().stack);
     }
@@ -165,84 +102,6 @@
       console.log("Some local Hang");
       while (true) { }
     }
-
-    // create a function that causes the browser to hang for 5 seconds
-    function hang() {
-      console.log("Hang");
-      while (true) { }
-    }
-
-    const hangBtn = document.querySelector("#hangBtn");
-    hangBtn.onclick = (event) => foo();
-
-    const externalHangBtn = document.querySelector("#externalHangBtn");
-    externalHangBtn.onclick = (event) => {
-      startExternalHang();
-    };
-
-    const exceptionBtn = document.querySelector("#externalExceptionBtn");
-    exceptionBtn.onclick = (event) => {
-      try {
-        fooWithException();
-      } catch (error) {
-        console.log("Caught the error thrown by the external script");
-        console.log(error.stack);
-      }
-    };
-
-    const localCdnLocalExceptionBtn = document.querySelector(
-      "#localCdnLocalExceptionBtn"
-    );
-    localCdnLocalExceptionBtn.onclick = (event) => {
-      try {
-        fooWithLocalException();
-      } catch (error) {
-        console.log("Caught the error thrown by the external script");
-        console.log(error.stack);
-      }
-    };
-
-    const localCdnLocalhangBtn = document.querySelector(
-      "#localCdnLocalhangBtn"
-    );
-    localCdnLocalhangBtn.onclick = (event) => {
-      fooWithLocalHang();
-    };
-
-    // Access the camera and display the video stream
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then((stream) => {
-        const videoElement = document.querySelector("#camera");
-        videoElement.srcObject = stream;
-      })
-      .catch((error) => {
-        console.log("Error accessing camera:", error);
-      });
-
-    // Get user's current location
-    const locationBtn = document.querySelector("#locationBtn");
-    const locationOutput = document.querySelector("#locationOutput");
-
-    function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-            locationOutput.textContent = `Latitude: ${latitude}, Longitude: ${longitude}`;
-          },
-          (error) => {
-            console.log("Error getting location:", error);
-          }
-        );
-      } else {
-        locationOutput.textContent = "Geolocation is not supported by this browser.";
-      }
-    }
-
-    console.log("self.crossOriginIsolate: ", self.crossOriginIsolated);
-
-    locationBtn.onclick = (event) => getLocation();
   </script>
 </body>
 

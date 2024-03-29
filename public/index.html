@@ -6,112 +6,202 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <script type="text/javascript" src=".\script.js"></script>
+    <script type="text/javascript" src=".\index.js"></script>
+    <style type="text/css" src=".\styles.css"></style>
+    <style>
+      .iframe-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: auto;
+        margin-bottom: 10px;
+      }
+
+      .button-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: auto;
+      }
+
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 10px;
+      }
+
+      .button-group {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-evenly;
+        text-align: center;
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #000;
+      }
+
+      #hangBtn {
+        margin: 10px;
+      }
+
+      .counter {
+        font-size: 24px;
+        margin: 10px;
+      }
+
+      #counterBtn {
+        margin: 10px;
+      }
+    </style>
   </head>
+
   <body>
     <!-- Add some random elements -->
-    <div>Some text</div>
-    <button id="hangBtn">Hang Browser</button>
-    <button id="reportBtn">Display reports</button>
-    <!-- Add a button that increments a counter -->
-    <button id="counterBtn">Increment Counter</button>
-    <div class="counter">0</div>
-    <div class="output"></div>
+    <div class="container">
+      <h1>
+        This main document has <span style="color: green">Opted in</span> to
+        sending call stacks
+      </h1>
+      <button id="goToOptOut">Go to Opt Out main page</button>
+    </div>
+    <div class="button-container">
+      <button id="hangBtn" class="button">Hang Browser</button>
+      <div class="button-group">
+        <p>
+          When clicked, fetches and executes a script from an external source,
+          which can causes the browser to hang.
+        </p>
+        <button id="localCdnLocalhangBtn" class="button">
+          Local -> CDN -> Local Hang
+        </button>
+      </div>
+      <div class="button-group">
+        <p>
+          When clicked, fetches and executes a script from an external source,
+          which can causes the browser to hang.
+        </p>
+        <button id="wasmexample" class="button">Wasm</button>
+      </div>
+      <div class="button-group">
+        <p>
+          This will call Foo()->Bar()->Baz()->yikes() then the function which
+          will cause the hang
+        </p>
+        <button id="externalHangBtn" class="button">External Hang</button>
+      </div>
+      <!-- Add a button that increments a counter -->
+      <button id="counterBtn" class="button">Increment Counter</button>
+      <div class="counter">0</div>
+    </div>
 
-    <!-- Iframe to embed hang.html -->
-    <iframe src="hang.html" width="800px" height="600px"></iframe>
-    <!-- Iframe for bing.com -->
+    <div class="iframe-container">
+      <div>
+        <h1>
+          <span style="color: green">Opted in</span> to sending call stacks
+        </h1>
+        <iframe
+          src="hang.html"
+          width="500px"
+          height="500px"
+          title="Hang Page"
+        ></iframe>
+      </div>
+
+      <div>
+        <h1>
+          <span style="color: red">Not Opted in</span> to sending call stacks
+        </h1>
+        <iframe
+          src="https://localhost:8443/opt-out"
+          width="500px"
+          height="500px"
+          title="Not opted in hang page"
+        ></iframe>
+      </div>
+
+      <div>
+        <h1>
+          <span style="color: red">Not Opted in</span> to sending call stacks
+        </h1>
+        <!-- exteral iframe with a hang -->
+        <iframe
+          src="https://issackjohn.github.io/hang.html"
+          width="500px"
+          height="500px"
+          title="Hang Page"
+        ></iframe>
+      </div>
+    </div>
+
     <!-- https://cdn.jsdelivr.net/gh/user/repo@version/file -->
     <!-- <script src="https://cdn.jsdelivr.net/gh/issackjohn/issackjohn.github.io/my-script.js"></script> -->
 
     <script>
-      // Get reference to button
-      const reportBtn = document.querySelector("#reportBtn");
-
       // Get reference to counter button
       const counterBtn = document.querySelector("#counterBtn");
 
-      // Function to increment counter on the html page
-      function incrementCounter() {
-        const counterElem = document.querySelector(".counter");
-        counterElem.textContent = parseInt(counterElem.textContent) + 1;
-      }
+      const goToOptOut = document.querySelector("#goToOptOut");
+      goToOptOut.onclick = (event) => {
+        window.location.href = "https://localhost:8443/main-page-opt-out";
+      };
+
+      const externalHangBtn = document.querySelector("#externalHangBtn");
+      externalHangBtn.onclick = (event) => {
+        startExternalHang();
+      };
+
+      const localCdnLocalhangBtn = document.querySelector(
+        "#localCdnLocalhangBtn"
+      );
+      localCdnLocalhangBtn.onclick = (event) => {
+        fooWithLocalHang();
+      };
 
       // bind function to onclick method
       counterBtn.onclick = (event) => incrementCounter();
 
-      // Set up function to display reports
-      function displayReports(reports) {
-        const outputElem = document.querySelector(".output");
-        // Clear any existing reportss
-        outputElem.innerHTML = "";
-        const list = document.createElement("ul");
-        outputElem.appendChild(list);
-
-        for (let i = 0; i < reports.length; i++) {
-          let listItem = document.createElement("li");
-          let textNode = document.createTextNode(
-            "Report " + (i + 1) + ", type: " + reports[i].type
-          );
-          listItem.appendChild(textNode);
-          let innerList = document.createElement("ul");
-          listItem.appendChild(innerList);
-          list.appendChild(listItem);
-
-          for (let key in reports[i].body) {
-            let innerListItem = document.createElement("li");
-            let keyValue = reports[i].body[key];
-            innerListItem.textContent = key + ": " + keyValue;
-            innerList.appendChild(innerListItem);
-          }
-        }
-      }
-
-      const observer = new ReportingObserver(
-        (reports, observer) => {
-          reportBtn.onclick = (event) => displayReports(reports);
-        },
-        { buffered: true }
-      );
-
-      observer.observe();
-
-      // create a function that causes the browser to hang for 5 seconds
-      function hang() {
-        hang2();
-      }
-      function hang2() {
-        hang3();
-      }
-      function hang3() {
-        while (true) {}
-      }
-
       const hangBtn = document.querySelector("#hangBtn");
       hangBtn.onclick = (event) => hang();
 
-      const profiler = new Profiler({
-        sampleInterval: 10, // Target sampling every 10ms
-        maxBufferSize: 10 * 100, // Cap at ~10s worth of samples
-      });
+      const wasmexample = document.querySelector("#wasmexample");
+      wasmexample.onclick = async (event) => {
+        const runWasmAdd = async () => {
+          // Instantiate our wasm module
+          const wasmModule = await wasmBrowserInstantiate("./test.wasm", {
+            imports: {
+              imported_func: (arg) => {
+                while (true) {}
+              },
+            },
+            env: { abort: () => console.log("Abort!") },
+          });
 
-      async function collectAndSendTrace() {
-        if (profiler.stopped) return;
+          function hangWithWasm() {
+            // Call the Add function export from wasm, save the result
+            wasmModule.instance.exports.exported_func();
+          }
 
-        const trace = await profiler.stop();
-        const traceJson = JSON.stringify({
-          timing: performance.timing,
-          trace,
-        });
-
-        // Send the trace JSON to a server via Fetch/XHR
-        console.log(trace);
-        console.log(traceJson);
-      }
-
-      profiler.addEventListener("samplebufferfull", collectAndSendTrace);
-      window.addEventListener("load", collectAndSendTrace);
-
-      // Rest of the page's JS initialization logic
+          hangWithWasm();
+        };
+        runWasmAdd();
+      };
     </script>
   </body>
 </html>
