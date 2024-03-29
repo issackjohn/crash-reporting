@@ -14,7 +14,7 @@ function startExternalHang() {
 function fooWithLocalHang() {
     var script = document.createElement("script");
     script.src =
-        "https://31ca5d15-2d2e-47aa-ac12-45266fdf54d3.mock.pstmn.io/middle-function-hang";
+        "https://86a7b515-9c60-4eb6-a7ff-2f7eae43e047.mock.pstmn.io/middle-function-hang";
     script.crossOrigin = "anonymous";
     document.body.appendChild(script);
 }
